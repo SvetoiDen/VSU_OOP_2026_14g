@@ -125,5 +125,10 @@ public class Main {
         m.setValue(9, 9, 4.5);
 
         System.out.println(m);
+        Object val = m.getValue(0, 5);
+        System.out.println(val);
+
+        m.sortByColumn(1, true);
+        System.out.println(m);
     }
 }
