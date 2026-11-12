@@ -1,68 +1,69 @@
 package ru.vsu.cs.oop26.g14.zajchikov_d_a.my_set_lib;
 
+import ru.vsu.cs.oop26.g14.zajchikov_d_a.my_set_lib.utils_matrix.MatrixPrinter;
+import ru.vsu.cs.oop26.g14.zajchikov_d_a.my_set_lib.view_matrix.Col;
+import ru.vsu.cs.oop26.g14.zajchikov_d_a.my_set_lib.view_matrix.Row;
+
 import java.util.*;
 
 public class Matrix {
-
-    private int row;
-    private int col;
-    private Object[][] matrix;
+    private static Object[][] matrix;
 
     public Matrix(int row, int col) {
         if (row < 0 || col < 0)
             throw new IllegalArgumentException("Размеры не могут быть отрицательными");
-        this.row = row;
-        this.col = col;
-        this.matrix = createMatrixNull();
+        matrix = createMatrixNull(row, col);
     }
 
     public Matrix(Matrix other) {
         if (other == null) throw new IllegalArgumentException("Источник не может быть null");
-        this.row = other.row;
-        this.col = other.col;
-        this.matrix = new Object[this.row][this.col];
-        for (int i = 0; i < this.row; i++)
-            System.arraycopy(other.matrix[i], 0, this.matrix[i], 0, this.col);
+        int r = other.getCntRow();
+        int c = other.getCntCol();
+        matrix = new Object[r][c];
+        for (int i = 0; i < r; i++)
+            System.arraycopy(other.matrix[i], 0, this.matrix[i], 0, c);
     }
 
-    public int getRow() {
-        return row;
+    public int getCntRow() {
+        return matrix.length;
     }
 
-    public int getCol() {
-        return col;
+    public int getCntCol() {
+        return matrix.length == 0 ? 0 : matrix[0].length;
     }
 
-    public void setRow(int row) {
-        if (row < 0) throw new IllegalArgumentException("row < 0");
-        Object[][] old = this.matrix;
-        int oldRow = this.row;
-        int oldCol = this.col;
-        this.row = row;
-        this.matrix = new Object[this.row][this.col];
-        int copyRows = Math.min(this.row, oldRow);
+    public void setRow(int newRow) {
+        if (newRow < 0) throw new IllegalArgumentException("row < 0");
+        int currentRow = getCntRow();
+        int currentCol = getCntCol();
+        Object[][] newMatrix = new Object[newRow][currentCol];
+        int copyRows = Math.min(newRow, currentRow);
         for (int i = 0; i < copyRows; i++)
-            System.arraycopy(old[i], 0, this.matrix[i], 0, oldCol);
+            System.arraycopy(matrix[i], 0, newMatrix[i], 0, currentCol);
+        this.matrix = newMatrix;
     }
 
-    public void setCol(int col) {
-        if (col < 0) throw new IllegalArgumentException("col < 0");
-        Object[][] old = this.matrix;
-        int oldRow = this.row;
-        int oldCol = this.col;
-        this.col = col;
-        this.matrix = new Object[this.row][this.col];
-        int copyCols = Math.min(this.col, oldCol);
-        for (int i = 0; i < oldRow; i++)
-            System.arraycopy(old[i], 0, this.matrix[i], 0, copyCols);
+    public void setCol(int newCol) {
+        if (newCol < 0) throw new IllegalArgumentException("col < 0");
+        int currentRow = getCntRow();
+        int currentCol = getCntCol();
+        Object[][] newMatrix = new Object[currentRow][newCol];
+        int copyCols = Math.min(newCol, currentCol);
+        for (int i = 0; i < currentRow; i++)
+            System.arraycopy(matrix[i], 0, newMatrix[i], 0, copyCols);
+        matrix = newMatrix;
     }
 
-    protected Object[][] getMatrix() {
+    public Object[][] getMatrix() {
         return matrix;
     }
 
+    private Object[][] createMatrixNull(int row, int col) {
+        return new Object[row][col];
+    }
+
     private boolean isOutOfBounds(int r, int c) {
-        return r < 0 || r >= this.row || c < 0 || c >= this.col;
+        return r < 0 || r >= getCntRow() || c < 0 || c >= getCntCol();
     }
 
     public Object getValue(int r, int c) {
@@ -76,33 +77,29 @@ public class Matrix {
         matrix[r][c] = value;
     }
 
-    protected Object[][] createMatrixNull() {
-        return new Object[row][col];
-    }
-
-    public Object[] getRow(int r) {
+    public Row getRow(int r) {
+        int row = getCntRow();
         if (r < 0 || r >= row) throw new IndexOutOfBoundsException("row=" + r);
-        Object[] result = new Object[col];
-        System.arraycopy(matrix[r], 0, result, 0, col);
-        return result;
+        return new Row(this, r);
     }
 
-    public Object[] getColumn(int c) {
+    public Col getColumn(int c) {
+        int col = getCntCol();
         if (c < 0 || c >= col) throw new IndexOutOfBoundsException("col=" + c);
-        Object[] result = new Object[row];
-        for (int i = 0; i < row; i++) result[i] = matrix[i][c];
-        return result;
+        return new Col(this, c);
     }
 
     public Matrix getRows(int fromInclusive, int toExclusive) {
-        return subMatrix(fromInclusive, toExclusive, 0, col);
+        return subMatrix(fromInclusive, toExclusive, 0, getCntCol());
     }
 
     public Matrix getColumns(int fromInclusive, int toExclusive) {
-        return subMatrix(0, row, fromInclusive, toExclusive);
+        return subMatrix(0, getCntRow(), fromInclusive, toExclusive);
     }
 
     public Matrix subMatrix(int rowFrom, int rowTo, int colFrom, int colTo) {
+        int row = getCntRow();
+        int col = getCntCol();
         if (rowFrom < 0 || rowTo > row || rowFrom > rowTo)
             throw new IndexOutOfBoundsException("Неверный диапазон строк: " + rowFrom + ".." + rowTo);
         if (colFrom < 0 || colTo > col || colFrom > colTo)
@@ -115,6 +112,7 @@ public class Matrix {
     }
 
     public List<Integer> findRowsByColumnValue(int c, Object value) {
+        int row = getCntRow();
         List<Integer> res = new ArrayList<>();
         for (int i = 0; i < row; i++)
             if (Objects.equals(matrix[i][c], value)) res.add(i);
@@ -122,6 +120,7 @@ public class Matrix {
     }
 
     public List<Integer> findColumnsByRowValue(int r, Object value) {
+        int col = getCntCol();
         List<Integer> res = new ArrayList<>();
         for (int j = 0; j < col; j++)
             if (Objects.equals(matrix[r][j], value)) res.add(j);
@@ -129,13 +128,15 @@ public class Matrix {
     }
 
     public void sortByColumn(int c, boolean ascending) {
-        if (c < 0 || c >= col) throw new IndexOutOfBoundsException("col=" + c);
+        if (c < 0 || c >= getCntCol()) throw new IndexOutOfBoundsException("col=" + c);
         final int dir = ascending ? 1 : -1;
         final int cc = c;
         Arrays.sort(matrix, (r1, r2) -> dir * compareValues(r1[cc], r2[cc]));
     }
 
     public void sortByRow(int r, boolean ascending) {
+        int row = getCntRow();
+        int col = getCntCol();
         if (r < 0 || r >= row) throw new IndexOutOfBoundsException("row=" + r);
         final int dir = ascending ? 1 : -1;
         Integer[] order = new Integer[col];
@@ -165,7 +166,8 @@ public class Matrix {
     }
 
     public Map<Object, List<Integer>> groupRowsByColumn(int c) {
-        if (c < 0 || c >= col) throw new IndexOutOfBoundsException("col=" + c);
+        if (c < 0 || c >= getCntCol()) throw new IndexOutOfBoundsException("col=" + c);
+        int row = getCntRow();
         Map<Object, List<Integer>> groups = new LinkedHashMap<>();
         for (int i = 0; i < row; i++) {
             groups.computeIfAbsent(matrix[i][c], k -> new ArrayList<>()).add(i);
@@ -174,7 +176,8 @@ public class Matrix {
     }
 
     public Map<Object, List<Integer>> groupColumnsByRow(int r) {
-        if (r < 0 || r >= row) throw new IndexOutOfBoundsException("row=" + r);
+        if (r < 0 || r >= getCntRow()) throw new IndexOutOfBoundsException("row=" + r);
+        int col = getCntCol();
         Map<Object, List<Integer>> groups = new LinkedHashMap<>();
         for (int j = 0; j < col; j++) {
             groups.computeIfAbsent(matrix[r][j], k -> new ArrayList<>()).add(j);

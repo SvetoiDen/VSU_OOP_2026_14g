@@ -1,4 +1,5 @@
-package ru.vsu.cs.oop26.g14.zajchikov_d_a.my_set_lib;
+package ru.vsu.cs.oop26.g14.zajchikov_d_a.my_set_lib.utils_matrix;
+import ru.vsu.cs.oop26.g14.zajchikov_d_a.my_set_lib.Matrix;
 
 public class MatrixPrinter {
     public String buildTable(Matrix matrixClass) {
@@ -6,8 +7,8 @@ public class MatrixPrinter {
         String nl = System.lineSeparator();
         String sep = "\t|\t";
 
-        int col = matrixClass.getCol();
-        int row = matrixClass.getRow();
+        int col = matrixClass.getCntCol();
+        int row = matrixClass.getCntRow();
         Object[][] matrix = matrixClass.getMatrix();
 
         // 1. Ширина каждого столбца

@@ -1,5 +1,7 @@
 package ru.vsu.cs.oop26.g14.zajchikov_d_a.my_set_lib;
 
+import ru.vsu.cs.oop26.g14.zajchikov_d_a.my_set_lib.view_matrix.Row;
+
 public class Main {
     public static void main(String[] args) {
         Matrix m = new Matrix(10, 10);
